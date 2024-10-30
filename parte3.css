@@ -1,0 +1,76 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    display: flex; /* Usa flexbox para alinear elementos */
+    flex-direction: column; /* Apila elementos en una columna */
+    align-items: center; /* Centra horizontalmente */
+    background-color: #484848; /* Color de fondo */
+}
+
+h1 {
+    color: #ffffff;
+}
+
+input {
+    padding: 10px;
+    width: 300px;
+    margin-right: 10px;
+}
+
+.team {
+    background-color: #8b0000; /* Color de fondo */
+    border: 2px solid #ff0000; /* Borde azul */
+    padding: 20px; /* Espaciado interno */
+    margin: 20px 0; /* Margen superior e inferior */
+    border-radius: 8px; /* Bordes redondeados */
+    text-align: center; /* Centra el texto */
+    -webkit-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
+    -moz-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
+    box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
+}
+
+.team h2 {
+    font-family: 'Arial Black', sans-serif, Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; /* Fuente en negrita */
+    color: #ffffff; /* Color del texto del título */
+}
+
+.team p {
+    font-family: 'Georgia', serif; /* Fuente elegante */
+    font-size: 18px; /* Tamaño de fuente */
+    color: #ffffff; /* Color del texto */
+    margin: 5px 0; /* Margen entre los párrafos */
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+canvas {
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    -webkit-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
+    -moz-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
+    box-shadow: -1px 1px 21px 7px rgba(157, 0, 0, 0.75);
+    color: #34ac42;
+    background-color: rgb(255, 255, 255);
+}
+
+#traversals {
+    margin-top: 20px;
+    color: #ffffff;
+    text-align: center; /* Centra el texto de los recorridos */
+}
+
+#expression {
+    -webkit-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
+    -moz-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
+    box-shadow: -1px 1px 21px 7px rgba(79, 71, 71, 0.75);
+}
