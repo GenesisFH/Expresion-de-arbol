@@ -1,5 +1,5 @@
-// Clase para los nodos del árbol
-class Node {
+// Nodo para el árbol de expresión
+class TreeNode {
     constructor(value) {
         this.value = value;
         this.left = null;
@@ -9,155 +9,127 @@ class Node {
 
 // Función para construir el árbol de expresión a partir de una expresión infija
 function buildExpressionTree(expression) {
-    const outputQueue = [];
-    const operatorStack = [];
-    const operators = ['+', '-', '*', '/'];
+    const operators = [];
+    const operands = [];
+    const precedence = { '+': 1, '-': 1, '*': 2, '/': 2 };
+    const isOperator = (char) => ['+', '-', '*', '/'].includes(char);
 
-    // Helper para definir la precedencia de los operadores
-    const precedence = (op) => {
-        if (op === '+' || op === '-') return 1;
-        if (op === '*' || op === '/') return 2;
-        return 0;
-    };
+    function applyOperator() {
+        const operator = operators.pop();
+        const right = operands.pop();
+        const left = operands.pop();
+        const node = new TreeNode(operator);
+        node.left = left;
+        node.right = right;
+        operands.push(node);
+    }
 
-    // Convertir la expresión infija a notación postfija
-    const tokens = expression.match(/\d+|[-+*/]/g);
-    
-    for (let token of tokens) {
-        if (!isNaN(token)) {
-            outputQueue.push(new Node(token)); // Si es un número
-        } else if (operators.includes(token)) {
-            while (
-                operatorStack.length &&
-                precedence(operatorStack[operatorStack.length - 1]) >= precedence(token)
-            ) {
-                const opNode = new Node(operatorStack.pop());
-                opNode.right = outputQueue.pop();
-                opNode.left = outputQueue.pop();
-                outputQueue.push(opNode);
+    let i = 0;
+    while (i < expression.length) {
+        const char = expression[i];
+
+        if (!isNaN(char)) {
+            let num = '';
+            while (i < expression.length && !isNaN(expression[i])) {
+                num += expression[i++];
             }
-            operatorStack.push(token);
+            operands.push(new TreeNode(parseInt(num)));
+            continue;
         }
+
+        if (isOperator(char)) {
+            while (
+                operators.length &&
+                precedence[operators[operators.length - 1]] >= precedence[char]
+            ) {
+                applyOperator();
+            }
+            operators.push(char);
+        }
+        i++;
     }
 
-    // Sacar los operadores restantes
-    while (operatorStack.length) {
-        const opNode = new Node(operatorStack.pop());
-        opNode.right = outputQueue.pop();
-        opNode.left = outputQueue.pop();
-        outputQueue.push(opNode);
+    while (operators.length) {
+        applyOperator();
     }
 
-    return outputQueue.pop();
+    return operands.pop();
 }
 
-// Función para procesar la expresión
-function processExpression() {
-    const expression = document.getElementById('expression').value;
+// Función para convertir el árbol de expresión en código ensamblador
+function expressionToAssembly(node) {
+    if (!node) return '';
+
+    if (!isNaN(node.value)) {
+        return `    mov ax, ${node.value}\n`;
+    }
+
+    const leftAssembly = expressionToAssembly(node.left);
+    const rightAssembly = expressionToAssembly(node.right);
+    const operator = node.value;
+
+    return (
+        leftAssembly +
+        `    push ax\n` +
+        rightAssembly +
+        `    pop bx\n` +
+        `    ${getAssemblyInstruction(operator)} ax, bx\n`
+    );
+}
+
+// Función que devuelve la instrucción ensamblador correcta para el operador
+function getAssemblyInstruction(operator) {
+    switch (operator) {
+        case '+': return 'add';
+        case '-': return 'sub';
+        case '*': return 'imul';
+        case '/': return 'idiv';
+        default: return '';
+    }
+}
+
+// Función para integrar la operación en el ensamblador base
+function generateFullAssembly(expression) {
     const tree = buildExpressionTree(expression);
-    drawTree(tree);
-    showTraversals(tree);
-    const result = evaluateExpression(tree);
-    showResult(result);
+    const operationAssembly = expressionToAssembly(tree);
 
+    const baseAssembly = `
+.model small                             
+.stack 100h                              
+.data                                    
+mensaje db 'El resultado es: $'          
+
+.code                                    
+inicio:                                  
+    mov ax, @data                        
+    mov ds, ax                           
+    mov ah, 09h                          
+    mov dx, offset mensaje               
+    int 21h                              
+
+    ; Aquí se inserta la operación
+${operationAssembly}
+    add ax, 30h                          
+    mov dl, al                           
+    mov ah, 02h                          
+    int 21h                              
+
+    mov ax, 4c00h                        
+    int 21h                              
+end inicio                               
+    `;
+
+    return baseAssembly;
 }
 
-// Función para evaluar el árbol de expresión
-function evaluateExpression(node) {
-    if (!node) return 0;
-    if (!isNaN(node.value)) return parseFloat(node.value); // Si es un número
-
-    const leftEval = evaluateExpression(node.left);
-    const rightEval = evaluateExpression(node.right);
-
-    switch (node.value) {
-        case '+': return leftEval + rightEval;
-        case '-': return leftEval - rightEval;
-        case '*': return leftEval * rightEval;
-        case '/': return leftEval / rightEval;
-        default: return 0;
-    }
-}
-
-// Función para mostrar el resultado
-function showResult(result) {
-    const resultDiv = document.createElement('div');
-    resultDiv.innerHTML = `<h2>Resultado: ${result}</h2>`;
-    document.body.appendChild(resultDiv);
-}
-
-// Función para dibujar el árbol en el canvas
-function drawTree(root) {
-    const canvas = document.getElementById('treeCanvas');
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    const startX = canvas.width / 2;
-    const startY = 40;
-    const levelGap = 50;
-
-    function drawNode(node, x, y, level) {
-        if (!node) return;
-
-        const childOffset = 120 / (level + 1);
-
-        // Dibuja las líneas de conexión
-        if (node.left) {
-            context.beginPath();
-            context.moveTo(x, y);
-            context.lineTo(x - childOffset, y + levelGap);
-            context.stroke();
-        }
-        if (node.right) {
-            context.beginPath();
-            context.moveTo(x, y);
-            context.lineTo(x + childOffset, y + levelGap);
-            context.stroke();
-        }
-
-        // Dibuja el nodo
-        context.beginPath();
-        context.arc(x, y, 20, 0, 2 * Math.PI);
-        context.fillStyle = "#34ac42";
-        context.fill();
-        context.stroke();
-
-        // Escribe el valor del nodo
-        context.fillStyle = "#ffffff";
-        context.font = "16px Arial";
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.fillText(node.value, x, y);
-
-        // Dibuja los nodos hijos
-        drawNode(node.left, x - childOffset, y + levelGap, level + 1);
-        drawNode(node.right, x + childOffset, y + levelGap, level + 1);
+// Función que se llama al hacer clic en el botón en el HTML
+function processExpression() {
+    const expression = document.getElementById("expression").value;
+    if (expression.trim() === "") {
+        alert("Por favor ingresa una expresión.");
+        return;
     }
 
-    drawNode(root, startX, startY, 0);
-}
-
-// Funciones para mostrar los recorridos del árbol
-function showTraversals(tree) {
-    const traversalsDiv = document.getElementById('traversals');
-    traversalsDiv.innerHTML = '';
-
-    traversalsDiv.innerHTML += `<p><strong>Preorden:</strong> ${preOrder(tree).join(' ')}</p>`;
-    traversalsDiv.innerHTML += `<p><strong>Inorden:</strong> ${inOrder(tree).join(' ')}</p>`;
-    traversalsDiv.innerHTML += `<p><strong>Postorden:</strong> ${postOrder(tree).join(' ')}</p>`;
-}
-
-function preOrder(node) {
-    if (node === null) return [];
-    return [node.value].concat(preOrder(node.left), preOrder(node.right));
-}
-
-function inOrder(node) {
-    if (node === null) return [];
-    return inOrder(node.left).concat(node.value, inOrder(node.right));
-}
-
-function postOrder(node) {
-    if (node === null) return [];
-    return postOrder(node.left).concat(postOrder(node.right), node.value);
+    const assemblyCode = generateFullAssembly(expression);
+    console.log("Código ensamblador generado:\n", assemblyCode);
 }
