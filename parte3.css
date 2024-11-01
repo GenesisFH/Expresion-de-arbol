@@ -1,20 +1,19 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    display: flex; /* Usa flexbox para alinear elementos */
-    flex-direction: column; /* Apila elementos en una columna */
-    align-items: center; /* Centra horizontalmente */
     background-color: #484848; /* Color de fondo */
+    color: #ffffff;
 }
 
 h1 {
     color: #ffffff;
+    align-items: center;
 }
 
 input {
     padding: 10px;
     width: 300px;
     margin-right: 10px;
+    align-items: center;
 }
 
 .team {
@@ -27,11 +26,15 @@ input {
     -webkit-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
     -moz-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
     box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
+    display: flex; /* Usa flexbox para alinear elementos */
+    flex-direction: column; /* Apila elementos en una columna */
+    align-items: center; /* Centra horizontalmente */
 }
 
 .team h2 {
     font-family: 'Arial Black', sans-serif, Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; /* Fuente en negrita */
     color: #ffffff; /* Color del texto del título */
+    align-items: center;
 }
 
 .team p {
@@ -39,6 +42,7 @@ input {
     font-size: 18px; /* Tamaño de fuente */
     color: #ffffff; /* Color del texto */
     margin: 5px 0; /* Margen entre los párrafos */
+    align-items: center;
 }
 
 button {
@@ -47,15 +51,38 @@ button {
     color: white;
     border: none;
     cursor: pointer;
+    align-items: center;
 }
 
 button:hover {
     background-color: #0056b3;
+    align-items: center;
 }
+
+.lienzos {
+    display: flex; /* Usar Flexbox para los lienzos*/
+    justify-content: space-between; /* Espacio entre los lienzos */
+    align-items: flex-start; /* Alinear al inicio verticalmente */
+    margin-top: 20px; /* Margen superior para separación */
+}
+
+.canvas-container {
+    display: flex;
+    flex-direction: column; /* Colocar el título y canvas en columna */
+    align-items: center; /* Centrar el contenido del lienzo */
+}
+
+.canvas-container canvas {
+    margin-top: 10px; /* Espaciado entre el encabezado y el lienzo */
+}
+
+
+
+
 
 canvas {
     border: 1px solid #ccc;
-    margin-top: 20px;
+    margin-top: 15px;
     -webkit-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
     -moz-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
     box-shadow: -1px 1px 21px 7px rgba(157, 0, 0, 0.75);
@@ -63,13 +90,17 @@ canvas {
     background-color: rgb(255, 255, 255);
 }
 
+
+
 #traversals {
     margin-top: 20px;
     color: #ffffff;
     text-align: center; /* Centra el texto de los recorridos */
+    align-items: center;
 }
 
 #expression {
+    align-items: center;
     -webkit-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
     -moz-box-shadow: -1px 1px 31px 7px rgba(0,0,0,0.75);
     box-shadow: -1px 1px 21px 7px rgba(79, 71, 71, 0.75);
