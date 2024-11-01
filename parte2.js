@@ -56,6 +56,22 @@ function buildExpressionTree(expression) {
     return operands.pop();
 }
 
+// Funciones de recorrido
+function preOrder(node) {
+    if (!node) return '';
+    return `${node.value} ${preOrder(node.left)}${preOrder(node.right)}`;
+}
+
+function inOrder(node) {
+    if (!node) return '';
+    return `${inOrder(node.left)}${node.value} ${inOrder(node.right)}`;
+}
+
+function postOrder(node) {
+    if (!node) return '';
+    return `${postOrder(node.left)}${postOrder(node.right)}${node.value} `;
+}
+
 // Función para convertir el árbol de expresión en código ensamblador
 function expressionToAssembly(node) {
     if (!node) return '';
@@ -88,10 +104,55 @@ function getAssemblyInstruction(operator) {
     }
 }
 
-// Función para integrar la operación en el ensamblador base
+// Función para dibujar el código de ensamblador en el lienzo
+function drawAssemblyCode(canvasId, assemblyCode) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el lienzo
+
+    ctx.font = "16px monospace"; // Establecer fuente
+    ctx.fillStyle = "#000"; // Color del texto
+
+    const lines = assemblyCode.split('\n'); // Dividir el código por líneas
+    lines.forEach((line, index) => {
+        ctx.fillText(line, 10, 20 + index * 20); // Dibujar cada línea
+    });
+}
+
+function drawTree(node, ctx, x, y, offsetX) {
+    if (!node) return;
+
+    // Dibuja el nodo
+    ctx.fillStyle = '#FF0000';
+    ctx.fillText(node.value, x, y);
+    
+    // Dibuja las líneas hacia los hijos
+    if (node.left) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - offsetX, y + 50);
+        ctx.strokeStyle = '#000000';
+        ctx.stroke();
+        drawTree(node.left, ctx, x - offsetX, y + 50, offsetX / 2);
+    }
+    
+    if (node.right) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + offsetX, y + 50);
+        ctx.strokeStyle = '#000000';
+        ctx.stroke();
+        drawTree(node.right, ctx, x + offsetX, y + 50, offsetX / 2);
+    }
+}
+
+// Función para generar el código ensamblador completo
 function generateFullAssembly(expression) {
     const tree = buildExpressionTree(expression);
     const operationAssembly = expressionToAssembly(tree);
+
+    // Llama a la función para dibujar el código en el lienzo
+    
 
     const baseAssembly = `
 .model small                             
@@ -120,6 +181,7 @@ end inicio
     `;
 
     return baseAssembly;
+    
 }
 
 // Función que se llama al hacer clic en el botón en el HTML
@@ -130,6 +192,38 @@ function processExpression() {
         return;
     }
 
+    // Construir el árbol y dibujarlo
+    const tree = buildExpressionTree(expression);
+
+    // Generar los recorridos
+    const preOrderTraversal = preOrder(tree).trim();
+    const inOrderTraversal = inOrder(tree).trim();
+    const postOrderTraversal = postOrder(tree).trim();
+
+    // Mostrar recorridos en el HTML
+    document.getElementById("preOrderResult").textContent = preOrderTraversal;
+    document.getElementById("inOrderResult").textContent = inOrderTraversal;
+    document.getElementById("postOrderResult").textContent = postOrderTraversal;
+
+    const canvas = document.getElementById("treeCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
+    ctx.font = '20px Arial'; // Configurar fuente
+
+    drawTree(tree, ctx, canvas.width / 2, 30, 120); // Dibujar el árbol
+
     const assemblyCode = generateFullAssembly(expression);
-    console.log("Código ensamblador generado:\n", assemblyCode);
+    drawAssemblyCode("treeCanvas2", assemblyCode);
 }
+
+function downloadAssembly() {
+    const expression = document.getElementById("expression").value;
+    const assemblyCode = generateFullAssembly(expression);
+
+    const blob = new Blob([assemblyCode], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'codigo_ensamblador.asm';
+    link.click();
+}
+
